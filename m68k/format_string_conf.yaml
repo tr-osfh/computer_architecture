@@ -1,0 +1,25 @@
+name: "assert format_string('Below 32-bit: %d\\n-2147483649\\n') == ([-1], '\\n')"
+limit: 2000
+memory_size: 0x1000
+memory_mapped_io:
+  0x80: [66, 101, 108, 111, 119, 32, 51, 50, 45, 98, 105, 116, 58, 32, 37, 100, 10, 45, 50, 49, 52, 55, 52, 56, 51, 54, 52, 57, 10]
+  0x84: []
+reports:
+  - name: Check
+    slice: all
+    view: |
+      D5: {D5}    A7: {A7}
+  - name: Check results
+    slice: last
+    filter:
+      - state
+    view: |
+      numio[0x80]: {io:0x80:dec}
+      numio[0x84]: {io:0x84:dec}
+      symio[0x80]: {io:0x80:sym}
+      symio[0x84]: {io:0x84:sym}
+    assert: |
+      numio[0x80]: [10] >>> []
+      numio[0x84]: [] >>> [-1]
+      symio[0x80]: "\n" >>> ""
+      symio[0x84]: "" >>> "?"
